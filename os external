@@ -1,0 +1,83 @@
+#include <stdio.h>
+
+int main() {
+    int rs[50], i, j, k, m, f, cntr[20], a[20], min, pf = 0;
+
+    // Input: Number of page references
+    printf("Enter number of page references: ");
+    scanf("%d", &m);
+
+    // Input: Reference string
+    printf("Enter the reference string: ");
+    for (i = 0; i < m; i++)
+        scanf("%d", &rs[i]);
+
+    // Input: Number of available frames
+    printf("Enter the available number of frames: ");
+    scanf("%d", &f);
+
+    // Initialize memory frames and frequency counters
+    for (i = 0; i < f; i++) {
+        cntr[i] = 0;
+        a[i] = -1; // -1 indicates empty frame
+    }
+
+    printf("\nThe Page Replacement Process is:\n");
+
+    // Process each page in the reference string
+    for (i = 0; i < m; i++) {
+        int found = 0;
+
+        // Check if the page is already in memory (Page Hit)
+        for (j = 0; j < f; j++) {
+            if (rs[i] == a[j]) {
+                cntr[j]++; // Increase frequency count
+                found = 1;
+                break;
+            }
+        }
+
+        // If the page is not found (Page Fault)
+        if (!found) {
+            min = 0;
+
+            // Find an empty frame first
+            for (j = 0; j < f; j++) {
+                if (a[j] == -1) {
+                    min = j;
+                    break;
+                }
+            }
+
+            // If no empty frame, find the LFU page
+            if (a[min] != -1) {
+                for (k = 1; k < f; k++) {
+                    if (cntr[k] < cntr[min]) {
+                        min = k;
+                    }
+                }
+            }
+
+            // Replace the least frequently used page
+            a[min] = rs[i];
+            cntr[min] = 1; // Reset frequency count for new page
+            pf++; // Increment page fault count
+        }
+
+        // Print memory state
+        printf("\nPage %d: ", rs[i]);
+        for (j = 0; j < f; j++) {
+            if (a[j] != -1)
+                printf("%d ", a[j]);
+            else
+                printf("- ");
+        }
+        if (!found)
+            printf("\tPF No. %d", pf);
+    }
+
+    printf("\n\nTotal number of page faults: %d\n", pf);
+
+    return 0;
+}
+
